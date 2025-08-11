@@ -206,7 +206,7 @@ def main():
     p = argparse.ArgumentParser(description="Export ARC-AGI JSON to PNGs")
     p.add_argument("--challenges", type=str, default=None, help="Path to *-challenges.json")
     p.add_argument("--solutions", type=str, default=None, help="Path to *-solutions.json")
-    p.add_argument("--outdir", type=str, required=True, help="Output directory for PNGs")
+    p.add_argument("--outdir", type=str, required=None, help="Output directory for PNGs")
     p.add_argument("--scale", type=int, default=20, help="Cell scale (pixels per grid cell)")
     p.add_argument("--gridlines", action="store_true", help="Overlay gridlines")
     p.add_argument("--no-composite", action="store_true", help="Do not create overview collages per task")
@@ -214,10 +214,18 @@ def main():
     args = p.parse_args()
 
     if not args.challenges and not args.solutions:
-        raise SystemExit("Provide at least one of --challenges or --solutions")
+        raise SystemExit(
+            "Provide at least one of --challenges or --solutions. "
+            "At least one input file must be specified."
+        )
 
-    outdir = Path(args.outdir)
+    if args.outdir:
+        outdir = Path(args.outdir)
+    else:
+        outdir = Path(__file__).resolve().parent / "dump"
     outdir.mkdir(parents=True, exist_ok=True)
+
+
     draw_grid = args.gridlines
     make_comp = not (args.no_composite or args.separate_only)
 
